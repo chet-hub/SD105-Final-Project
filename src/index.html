@@ -23,18 +23,27 @@
     <title>Find Your Way</title>
 
     <style>
+        body{
+            overflow: hidden;
+        }
         li {
             background-color:rgba(255, 255, 255, 1);;
         }
         .mapContainer{
+            overflow: hidden;
             position: absolute;
             width: 100%;
             height: 100%;
             z-index: -1;
             top: 0;
         }
-        ul {
-            overflow: paged-y;
+        ul.origins,ul.destinations  {
+            overflow: auto;
+            height: 800px;
+        }
+        .bus-container{
+            overflow: auto;
+            height: 800px;
         }
     </style>
 </head>
