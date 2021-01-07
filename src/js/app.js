@@ -82,9 +82,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 const mapboxAccessToken = "pk.eyJ1IjoiY2M4NjEwMTAiLCJhIjoiY2tqbjI1d2owMmdvNTJ6bXBjbTNvN2xyciJ9.YIrLqKEWtfxVr-CcgXm1MQ";
-const mapboxBaseURL = "https://api.mapbox.com/geocoding/v5/mapbox.places"
+const mapboxBaseURL = "//api.mapbox.com/geocoding/v5/mapbox.places"
 const bbox = "-97.325875, 49.766204, -96.953987, 49.99275" //limit the search in Winnipeg
-const winnipegtransitBaseURL = "https://api.winnipegtransit.com/v3/trip-planner.json"
+const winnipegtransitBaseURL = "//api.winnipegtransit.com/v3/trip-planner.json"
 const winnipegtransitKey = "Fci2OUg2KGq4iq3o66Q6"
 let map, markObject;
 
@@ -172,8 +172,12 @@ const renderTripObjectListToPage = function (plansObjectList, elementContainerSe
     if (plansObjectList.length == 0) {
         document.querySelector(elementContainerSelector).outerHTML = `<ul class="my-trip"></ul>`
     } else {
-        document.querySelector(elementContainerSelector).outerHTML = plansObjectList.reduce(function (context, planObject, index) {
-            context += `<ul class="my-trip" data-index="${index}"><li><h3>Plan ${index + 1}: (total: ${planObject.times.durations.total} mins)</h3></li>`
+        document.querySelector(elementContainerSelector).outerHTML = plansObjectList
+            .sort(function(a,b){
+                return a.times.durations.total - b.times.durations.total
+            })
+            .reduce(function (context, planObject, index) {
+            context += `<ul class="my-trip" data-index="${index}"><li><h3>Plan ${index + 1}: (total: ${planObject.times.durations.total} mins) ${index==0?"recommend":""}</h3></li>`
             context += planObject.segments.reduce(function (context1, segmentObjet) {
                 return context1 += segmentObjet.segmentString
             }, "")

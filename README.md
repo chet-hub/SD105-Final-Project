@@ -3,6 +3,7 @@ Find Your Way - another toy
 
 ## hosted url
 
+https://find-your-way.netlify.app/
 
 ## quick start
 
