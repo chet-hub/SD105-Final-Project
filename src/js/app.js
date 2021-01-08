@@ -1,3 +1,5 @@
+// Help function
+
 /**
  *  modal pop alert
  */
@@ -77,9 +79,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return window['pop'];
     }
+
     pop();
 })
 
+// config variables
 
 const mapboxAccessToken = "pk.eyJ1IjoiY2M4NjEwMTAiLCJhIjoiY2tqbjI1d2owMmdvNTJ6bXBjbTNvN2xyciJ9.YIrLqKEWtfxVr-CcgXm1MQ";
 const mapboxBaseURL = "https://api.mapbox.com/geocoding/v5/mapbox.places"
@@ -88,9 +92,14 @@ const winnipegtransitBaseURL = "https://api.winnipegtransit.com/v3/trip-planner.
 const winnipegtransitKey = "Fci2OUg2KGq4iq3o66Q6"
 let map, markObject;
 
+
+
+
 const getAddressObjectListByText = function (text) {
     return fetch(`${mapboxBaseURL}/${text}.json?bbox=${bbox}&access_token=${mapboxAccessToken}`)
-        .catch(() => {pop.open("Fetch data from server error, please try again later!")})
+        .catch(() => {
+            pop.open("Fetch data from server error, please try again later!")
+        })
         .then((response) => response.json())
         .then((data) => {
             return data.features.reduce((context, addressObject) => {
@@ -152,6 +161,7 @@ const convertSegmentObjectToHtml = function (segment) {
             `
     }
 }
+
 const findTheWayObjectByGeo = function (originLat, originLong, destinationLat, destinationLong) {
     return fetch(`${winnipegtransitBaseURL}?api-key=${winnipegtransitKey}&origin=geo/${originLat},${originLong}&destination=geo/${destinationLat},${destinationLong}`)
         .then(response => {
@@ -164,28 +174,37 @@ const findTheWayObjectByGeo = function (originLat, originLong, destinationLat, d
                 })
             })
             return data.plans
-        }).catch(() => {pop.open("Fetch data from server error, please try again later!")})
+        }).catch(() => {
+            pop.open("Fetch data from server error, please try again later!")
+        })
 }
 
+const convertSegmentsHTMLToString = function(planObject){
+    return planObject.segments.reduce(function (context, segmentObjet) {
+        return context += segmentObjet.segmentString
+    }, "")
+}
 
 const renderTripObjectListToPage = function (plansObjectList, elementContainerSelector) {
-    if (plansObjectList.length == 0) {
-        document.querySelector(elementContainerSelector).outerHTML = `<ul class="my-trip"></ul>`
+    if(!(plansObjectList instanceof Array)){
+        document.querySelector(elementContainerSelector).innerHTML = `<ul class="my-trip" ></ul>`
+    }else if(plansObjectList.length == 0) {
+        document.querySelector(elementContainerSelector).innerHTML = `<ul class="my-trip" ><li><h3>No result!</ul>`
     } else {
-        document.querySelector(elementContainerSelector).outerHTML = plansObjectList
-            .sort(function(a,b){
+        document.querySelector(elementContainerSelector).innerHTML = plansObjectList
+            .sort(function (a, b) { //sort the array by time
                 return a.times.durations.total - b.times.durations.total
             })
-            .reduce(function (context, planObject, index) {
-            context += `<ul class="my-trip" data-index="${index}"><li><h3>Plan ${index + 1}: (total: ${planObject.times.durations.total} mins) ${index==0?" - recommend":""}</h3></li>`
-            context += planObject.segments.reduce(function (context1, segmentObjet) {
-                return context1 += segmentObjet.segmentString
+            .reduce(function (planBlock, planObject, index) {
+                planBlock += `<ul class="my-trip" data-index="${index}">
+                                <li><h3>Plan ${index + 1}: (total: ${planObject.times.durations.total} mins) ${index == 0 ? " - recommend" : ""}</h3>
+                                </li>
+                                ${convertSegmentsHTMLToString(planObject)}
+                             </ul>`
+                return planBlock
             }, "")
-            return context + "</ul>"
-        }, "")
     }
 }
-
 
 const mark = function (longitude, latitude) {
     if (markObject != null) {
@@ -194,7 +213,6 @@ const mark = function (longitude, latitude) {
     markObject = new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
     map.flyTo({center: [longitude, latitude], essential: true});
 }
-
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -237,24 +255,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
 
     document.querySelector(".plan-trip").addEventListener("click", function (event) {
-        let message = "";
         const origin = document.querySelector("ul.origins li.selected")
         const destination = document.querySelector("ul.destinations li.selected")
         if (origin == null) {
-            message += "The origin address is unavailable!\n"
-            return pop.open(message)
+            return pop.open("The origin address is unavailable!\n")
         }
         if (destination == null) {
-            message += "The destination address is unavailable!\n"
-            return pop.open(message)
+            return pop.open("The destination address is unavailable!\n")
         }
         if (origin.dataset.lat === destination.dataset.lat && origin.dataset.long === destination.dataset.long) {
-            message += "The destination address cann't be the origin address!\n"
-            return pop.open(message)
+            return pop.open("The destination address can't be the origin address!\n")
         }
+        document.querySelector('.bus-container').innerHTML = `<ul class="my-trip" ><li><h3>Loading ...</ul>`
         findTheWayObjectByGeo(origin.dataset.lat, origin.dataset.long, destination.dataset.lat, destination.dataset.long)
             .then(function (tripObjectList) {
-                renderTripObjectListToPage(tripObjectList, '.my-trip');
+                renderTripObjectListToPage(tripObjectList, '.bus-container');
             })
     })
 
