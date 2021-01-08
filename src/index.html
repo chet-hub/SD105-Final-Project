@@ -27,7 +27,7 @@
             overflow: hidden;
         }
         li {
-            background-color:rgba(255, 255, 255, 1);;
+            background-color:rgba(255, 255, 255, 0.7);;
         }
         .mapContainer{
             overflow: hidden;
@@ -44,6 +44,31 @@
         .bus-container{
             overflow: auto;
             height: 800px;
+        }
+
+        ul.my-trip li {
+            font-size: 15px;
+            margin-top: 1px;
+            margin-bottom: 1px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        ul.origins li, ul.destinations li {
+            font-size: 15px;
+            margin-top: 1px;
+            margin-bottom: 0px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .my-trip{
+            margin-top: 0px;
+            margin-bottom: 15px;
+        }
+
+        i {
+            width: 20px;
         }
     </style>
 </head>
@@ -119,7 +144,7 @@
 </div>
 
 <div class="button-container">
-    <button class="plan-trip">Plan My Trip</button>
+    <button class="plan-trip">Find way</button>
 </div>
 
 <div class="bus-container">
