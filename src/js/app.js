@@ -92,8 +92,7 @@ const winnipegtransitBaseURL = "https://api.winnipegtransit.com/v3/trip-planner.
 const winnipegtransitKey = "Fci2OUg2KGq4iq3o66Q6"
 let map, markObject;
 
-
-
+//input auto complete and render to page
 
 const getAddressObjectListByText = function (text) {
     return fetch(`${mapboxBaseURL}/${text}.json?bbox=${bbox}&access_token=${mapboxAccessToken}`)
@@ -130,6 +129,8 @@ const renderAddressObjectListToPage = function (addressObjectList, elementContai
         }, "")
     }
 }
+
+//plans data fetch and render and render to page
 
 const convertSegmentObjectToHtml = function (segment) {
     switch (segment.type) {
@@ -206,6 +207,7 @@ const renderTripObjectListToPage = function (plansObjectList, elementContainerSe
     }
 }
 
+//put a mark on the map
 const mark = function (longitude, latitude) {
     if (markObject != null) {
         markObject.remove();
@@ -214,8 +216,10 @@ const mark = function (longitude, latitude) {
     map.flyTo({center: [longitude, latitude], essential: true});
 }
 
+
 document.addEventListener('DOMContentLoaded', (event) => {
 
+    //init a map as the background of the page
     mapboxgl.accessToken = mapboxAccessToken;
     map = new mapboxgl.Map({
         container: 'map',
@@ -224,6 +228,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         zoom: 14 // starting zoom
     });
 
+    //input event listener
     document.querySelector('body').addEventListener("submit", function (event) {
         event.preventDefault()
         if (event.target.matches("form")) {
@@ -237,6 +242,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     })
 
+    //click event listener for selecting one of the auto complete results
     document.querySelector('body').addEventListener("click", function (event) {
         const li = event.target.closest("li");
         if (li != null) {
@@ -254,6 +260,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     })
 
+    //search plan button event listener
     document.querySelector(".plan-trip").addEventListener("click", function (event) {
         const origin = document.querySelector("ul.origins li.selected")
         const destination = document.querySelector("ul.destinations li.selected")
